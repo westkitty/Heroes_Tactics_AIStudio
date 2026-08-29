@@ -208,4 +208,33 @@ class AiSystemTest {
         val move = decision as AdventureAiDecision.Move
         assertTrue(move.path.isNotEmpty())
     }
+
+    @Test
+    fun `test auto battle automated turn loop runs until battle resolution`() {
+        val sim = CombatSimulation()
+        val pikeman = GameCatalog.getCreature("pikeman")
+        val imp = GameCatalog.getCreature("imp")
+
+        val attArmy = listOf(CombatStack("att_pike", 0, pikeman, 50, side = CombatSide.ATTACKER, hex = HexCoordinate(0, 5)))
+        val defArmy = listOf(CombatStack("def_imp", 0, imp, 10, side = CombatSide.DEFENDER, hex = HexCoordinate(14, 5)))
+
+        sim.setupBattle(attArmy, defArmy)
+
+        var turnsExecuted = 0
+        val maxTurns = 50
+
+        while (!sim.isBattleOver && turnsExecuted < maxTurns) {
+            val active = sim.turnQueue.currentActiveStack
+            if (active != null && active.isAlive && !active.hasActed) {
+                TacticalCombatAi.executeAiTurn(sim)
+            } else {
+                sim.advanceTurn()
+            }
+            turnsExecuted++
+        }
+
+        assertTrue("Auto-battle should finish within turn limit", sim.isBattleOver)
+        assertNotNull("Battle should have a winner", sim.winner)
+        assertEquals(CombatSide.ATTACKER, sim.winner)
+    }
 }

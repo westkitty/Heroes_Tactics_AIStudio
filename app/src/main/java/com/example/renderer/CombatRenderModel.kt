@@ -109,7 +109,10 @@ data class CombatSceneSnapshot(
     val roundNumber: Int,
     val isBattleOver: Boolean,
     val winner: CombatSide?,
-    val currentTick: Int
+    val currentTick: Int,
+    val fogOfWarEnabled: Boolean = false,
+    val visibleHexes: Set<HexCoordinate> = emptySet(),
+    val exploredHexes: Set<HexCoordinate> = emptySet()
 ) {
     fun getStackAtHex(hex: HexCoordinate): StackRenderState? {
         return stacks.firstOrNull { stack ->
@@ -132,9 +135,18 @@ object CombatSceneAdapter {
         currentTick: Int = 0
     ): CombatSceneSnapshot {
         val activeStack = simulation.turnQueue.currentActiveStack
+        val fogEnabled = simulation.fogOfWarEnabled
+        val visibleHexes = if (fogEnabled) simulation.calculateVisibleHexes(CombatSide.ATTACKER) else emptySet()
+        val exploredHexes = if (fogEnabled) simulation.exploredHexes.toSet() else emptySet()
 
         val stackStates = simulation.getAllStacks()
-            .filter { it.isAlive }
+            .filter { stack ->
+                if (!stack.isAlive) return@filter false
+                if (!fogEnabled || stack.side == CombatSide.ATTACKER) return@filter true
+                // Mask enemy units outside player line of sight
+                val occupied = simulation.grid.getOccupiedHexes(stack.hex, stack.definition.isWide, stack.facing)
+                occupied.any { visibleHexes.contains(it) }
+            }
             .map { stack ->
                 val isActive = stack.id == activeStack?.id
                 val animState = if (isActive) AnimationState.IDLE else AnimationState.IDLE
@@ -182,10 +194,15 @@ object CombatSceneAdapter {
             )
             reachableHexes.putAll(reach)
 
-            val enemyStacks = simulation.getAllStacks().filter { it.isAlive && it.side != activeStack.side }
+            val enemyStacks = simulation.getAllStacks().filter { enemy ->
+                enemy.isAlive && enemy.side != activeStack.side && (!fogEnabled || {
+                    val occ = simulation.grid.getOccupiedHexes(enemy.hex, enemy.definition.isWide, enemy.facing)
+                    occ.any { visibleHexes.contains(it) }
+                }())
+            }
 
             if (activeStack.isRanged && activeStack.shotsRemaining > 0) {
-                // Ranged attacker can target all enemy stacks
+                // Ranged attacker can target visible enemy stacks
                 for (enemy in enemyStacks) {
                     attackableHexes.addAll(
                         simulation.grid.getOccupiedHexes(enemy.hex, enemy.definition.isWide, enemy.facing)
@@ -223,7 +240,10 @@ object CombatSceneAdapter {
             roundNumber = simulation.turnQueue.roundNumber,
             isBattleOver = simulation.isBattleOver,
             winner = simulation.winner,
-            currentTick = currentTick
+            currentTick = currentTick,
+            fogOfWarEnabled = fogEnabled,
+            visibleHexes = visibleHexes,
+            exploredHexes = exploredHexes
         )
     }
 }

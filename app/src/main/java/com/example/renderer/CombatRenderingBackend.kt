@@ -128,7 +128,7 @@ object CombatRenderingBackend {
     }
 
     /**
-     * Renders battlefield base hexagonal tiles with terrain-specific styling and borders.
+     * Renders battlefield base hexagonal tiles with terrain-specific styling, borders, and Fog-of-War shroud.
      */
     private fun DrawScope.renderHexGrid(
         scene: CombatSceneSnapshot,
@@ -141,12 +141,40 @@ object CombatRenderingBackend {
                 val center = calculateHexCenter(hex, hexRadius, originOffset)
                 val hexPath = buildHexagonPath(center, hexRadius * 0.96f)
 
-                val specificTerrain = scene.hexTerrains[hex] ?: scene.battlefieldTerrain
-                val tileBg = getTerrainBaseColor(specificTerrain)
+                if (scene.fogOfWarEnabled) {
+                    val isVisible = scene.visibleHexes.contains(hex)
+                    val isExplored = scene.exploredHexes.contains(hex)
 
-                // Hex base tile
-                drawPath(hexPath, color = tileBg, style = Fill)
-                drawPath(hexPath, color = HexGridBorder, style = Stroke(width = 1f))
+                    if (isVisible) {
+                        val specificTerrain = scene.hexTerrains[hex] ?: scene.battlefieldTerrain
+                        val tileBg = getTerrainBaseColor(specificTerrain)
+                        drawPath(hexPath, color = tileBg, style = Fill)
+                        drawPath(hexPath, color = HexGridBorder, style = Stroke(width = 1f))
+                    } else if (isExplored) {
+                        // Explored but currently shrouded in fog
+                        val specificTerrain = scene.hexTerrains[hex] ?: scene.battlefieldTerrain
+                        val tileBg = getTerrainBaseColor(specificTerrain)
+                        val dimmedColor = Color(
+                            red = tileBg.red * 0.35f,
+                            green = tileBg.green * 0.35f,
+                            blue = tileBg.blue * 0.35f,
+                            alpha = 0.9f
+                        )
+                        drawPath(hexPath, color = dimmedColor, style = Fill)
+                        drawPath(hexPath, color = HexGridBorder.copy(alpha = 0.25f), style = Stroke(width = 0.8f))
+                    } else {
+                        // Completely unrevealed in deep fog
+                        drawPath(hexPath, color = Color(0xFF070D18), style = Fill)
+                        drawPath(hexPath, color = Color(0x331E293B), style = Stroke(width = 0.5f))
+                    }
+                } else {
+                    val specificTerrain = scene.hexTerrains[hex] ?: scene.battlefieldTerrain
+                    val tileBg = getTerrainBaseColor(specificTerrain)
+
+                    // Hex base tile
+                    drawPath(hexPath, color = tileBg, style = Fill)
+                    drawPath(hexPath, color = HexGridBorder, style = Stroke(width = 1f))
+                }
             }
         }
     }
@@ -281,6 +309,10 @@ object CombatRenderingBackend {
         originOffset: Offset
     ) {
         for ((hex, type) in scene.obstacles) {
+            if (scene.fogOfWarEnabled && !scene.visibleHexes.contains(hex) && !scene.exploredHexes.contains(hex)) {
+                // Completely hidden under Fog-of-War
+                continue
+            }
             val center = calculateHexCenter(hex, hexRadius, originOffset)
             when (type) {
                 ObstacleType.ROCK -> {

@@ -8,6 +8,7 @@ import com.example.data.SpellDefinition
 import com.example.data.SpellType
 import com.example.engine.AStarPathfinder
 import com.example.engine.FacingDirection
+import com.example.engine.FogOfWarSystem
 import com.example.engine.HexCoordinate
 import com.example.engine.HexDirection
 import com.example.engine.TacticalCombatGrid
@@ -48,6 +49,35 @@ class CombatSimulation(
     var winner: CombatSide? = null
         private set
 
+    var fogOfWarEnabled: Boolean = false
+    val exploredHexes = mutableSetOf<HexCoordinate>()
+
+    /**
+     * Calculates the set of currently visible hexes for the specified combat side (e.g. Player/ATTACKER).
+     */
+    fun calculateVisibleHexes(forSide: CombatSide = CombatSide.ATTACKER): Set<HexCoordinate> {
+        val visible = FogOfWarSystem.computeSideVision(grid, stacks, forSide)
+        exploredHexes.addAll(visible)
+        return visible
+    }
+
+    /**
+     * Checks if a given hex coordinate is within line of sight of the specified combat side.
+     */
+    fun isHexVisible(hex: HexCoordinate, forSide: CombatSide = CombatSide.ATTACKER): Boolean {
+        if (!fogOfWarEnabled) return true
+        return calculateVisibleHexes(forSide).contains(hex)
+    }
+
+    /**
+     * Returns the list of stacks visible to the specified combat side under fog-of-war.
+     */
+    fun getVisibleStacks(forSide: CombatSide = CombatSide.ATTACKER): List<CombatStack> {
+        if (!fogOfWarEnabled) return getAllStacks().filter { it.isAlive }
+        val visibleHexes = calculateVisibleHexes(forSide)
+        return FogOfWarSystem.filterVisibleStacks(grid, stacks, forSide, visibleHexes)
+    }
+
     /**
      * Initializes a battle with attacker and defender armies.
      */
@@ -57,6 +87,7 @@ class CombatSimulation(
     ) {
         stacks.clear()
         battleLog.clear()
+        exploredHexes.clear()
         isBattleOver = false
         winner = null
 
@@ -64,6 +95,7 @@ class CombatSimulation(
         stacks.addAll(defenderStacks)
 
         turnQueue.initializeCombat(stacks)
+        calculateVisibleHexes(CombatSide.ATTACKER)
         battleLog.add(CombatLogEvent.RoundStarted(turnQueue.roundNumber))
         turnQueue.currentActiveStack?.let {
             battleLog.add(CombatLogEvent.TurnTransition(it.id, it.definition.name, it.side))
@@ -157,6 +189,9 @@ class CombatSimulation(
         }
 
         battleLog.add(CombatLogEvent.StackMoved(stack.id, oldHex, targetHex, pathResult.path))
+        if (fogOfWarEnabled) {
+            calculateVisibleHexes(CombatSide.ATTACKER)
+        }
         return true
     }
 

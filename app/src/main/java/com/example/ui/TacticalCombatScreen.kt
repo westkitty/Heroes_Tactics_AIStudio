@@ -112,6 +112,13 @@ fun TacticalCombatScreen(
     var savedJsonState by remember { mutableStateOf("") }
     var animTick by remember { mutableIntStateOf(0) }
     var combatLogRefresh by remember { mutableIntStateOf(0) }
+    var isAutoBattleActive by remember { mutableStateOf(false) }
+    var isFogOfWarEnabled by remember { mutableStateOf(true) }
+
+    // Synchronize Fog-of-War simulation setting
+    LaunchedEffect(isFogOfWarEnabled) {
+        simulation.fogOfWarEnabled = isFogOfWarEnabled
+    }
 
     // Ticking animation loop for smooth sprite animations and fx cleanup
     LaunchedEffect(Unit) {
@@ -124,6 +131,27 @@ fun TacticalCombatScreen(
                     animTick - fx.startTick < fx.durationTicks
                 }
             }
+        }
+    }
+
+    // Automated turn progression loop when Auto-Battle is enabled
+    LaunchedEffect(isAutoBattleActive, animTick, simulation.isBattleOver) {
+        if (isAutoBattleActive && !simulation.isBattleOver) {
+            val active = simulation.turnQueue.currentActiveStack
+            if (active != null && active.isAlive && !active.hasActed) {
+                delay(350)
+                if (isAutoBattleActive && !simulation.isBattleOver) {
+                    executeAutoTurn(simulation)
+                    combatLogRefresh++
+                    selectedHex = null
+                    pathOverlay = emptyList()
+                }
+            } else if (active != null && active.hasActed) {
+                simulation.advanceTurn()
+                combatLogRefresh++
+            }
+        } else if (simulation.isBattleOver) {
+            isAutoBattleActive = false
         }
     }
 
@@ -189,18 +217,30 @@ fun TacticalCombatScreen(
             .background(CastleNavyDark)
             .padding(8.dp)
     ) {
-        // --- 1. TOP HEADER: Round Info, Initiative Queue & Save/Resume Controls ---
+        // --- 1. TOP HEADER: Round Info, Initiative Queue, Fog-of-War & Auto-Battle Controls ---
         HeaderAndTurnQueue(
             roundNumber = simulation.turnQueue.roundNumber,
             turnOrder = simulation.turnQueue.getUpcomingTurnOrder(),
             activeStack = activeStack,
+            isFogOfWar = isFogOfWarEnabled,
+            onToggleFogOfWar = {
+                isFogOfWarEnabled = !isFogOfWarEnabled
+                simulation.fogOfWarEnabled = isFogOfWarEnabled
+                combatLogRefresh++
+            },
+            isAutoBattleActive = isAutoBattleActive,
+            onToggleAutoBattle = {
+                isAutoBattleActive = !isAutoBattleActive
+            },
             onReset = {
                 val newSim = CombatSimulation()
                 initDemoBattle(newSim)
+                newSim.fogOfWarEnabled = isFogOfWarEnabled
                 simulation = newSim
                 selectedHex = null
                 pathOverlay = emptyList()
                 visualFxList = emptyList()
+                isAutoBattleActive = false
                 combatLogRefresh++
             },
             onSave = {
@@ -329,6 +369,10 @@ fun TacticalCombatScreen(
         // --- 4. ACTION BAR ---
         ActionControls(
             activeStack = activeStack,
+            isAutoBattleActive = isAutoBattleActive,
+            onToggleAutoBattle = {
+                isAutoBattleActive = !isAutoBattleActive
+            },
             onWait = {
                 simulation.waitTurn()
                 simulation.advanceTurn()
@@ -426,6 +470,10 @@ private fun HeaderAndTurnQueue(
     roundNumber: Int,
     turnOrder: List<CombatStack>,
     activeStack: CombatStack?,
+    isFogOfWar: Boolean,
+    onToggleFogOfWar: () -> Unit,
+    isAutoBattleActive: Boolean,
+    onToggleAutoBattle: () -> Unit,
     onReset: () -> Unit,
     onSave: () -> Unit,
     onLoad: () -> Unit
@@ -437,21 +485,29 @@ private fun HeaderAndTurnQueue(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                text = "ROUND $roundNumber",
+                text = "R$roundNumber",
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Bold,
                 color = GoldPrimary,
                 modifier = Modifier.testTag("round_counter")
             )
-            Spacer(modifier = Modifier.width(4.dp))
+            Spacer(modifier = Modifier.width(2.dp))
+            IconButton(onClick = onToggleFogOfWar, modifier = Modifier.size(28.dp).testTag("fog_of_war_toggle")) {
+                Icon(
+                    Icons.Default.Info,
+                    contentDescription = if (isFogOfWar) "Fog of War: ON" else "Fog of War: OFF",
+                    tint = if (isFogOfWar) GoldSecondary else Color(0xFF64748B),
+                    modifier = Modifier.size(17.dp)
+                )
+            }
             IconButton(onClick = onReset, modifier = Modifier.size(28.dp).testTag("reset_battle_button")) {
-                Icon(Icons.Default.Refresh, contentDescription = "Reset Battle", tint = GoldSecondary, modifier = Modifier.size(18.dp))
+                Icon(Icons.Default.Refresh, contentDescription = "Reset Battle", tint = GoldSecondary, modifier = Modifier.size(17.dp))
             }
             IconButton(onClick = onSave, modifier = Modifier.size(28.dp).testTag("save_battle_button")) {
-                Icon(Icons.Default.Star, contentDescription = "Save Session", tint = ManaBlue, modifier = Modifier.size(18.dp))
+                Icon(Icons.Default.Star, contentDescription = "Save Session", tint = ManaBlue, modifier = Modifier.size(17.dp))
             }
             IconButton(onClick = onLoad, modifier = Modifier.size(28.dp).testTag("load_battle_button")) {
-                Icon(Icons.Default.PlayArrow, contentDescription = "Resume Session", tint = EmeraldBuff, modifier = Modifier.size(18.dp))
+                Icon(Icons.Default.PlayArrow, contentDescription = "Resume Session", tint = EmeraldBuff, modifier = Modifier.size(17.dp))
             }
         }
 
@@ -459,10 +515,28 @@ private fun HeaderAndTurnQueue(
         Row(
             modifier = Modifier
                 .weight(1f)
-                .padding(horizontal = 6.dp)
+                .padding(horizontal = 4.dp)
                 .horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
+            if (isAutoBattleActive) {
+                Surface(
+                    shape = RoundedCornerShape(4.dp),
+                    color = Color(0xFF059669),
+                    border = BorderStroke(1.dp, Color(0xFF34D399)),
+                    modifier = Modifier.padding(1.dp).testTag("auto_battle_badge")
+                ) {
+                    Text(
+                        text = "AUTO",
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
+                    )
+                }
+            }
+
             turnOrder.take(8).forEach { stack ->
                 val isActive = stack.id == activeStack?.id
                 val sideColor = if (stack.side == CombatSide.ATTACKER) GoldPrimary else CrimsonAccent
@@ -675,6 +749,8 @@ private fun calculateHexAtOffset(offset: Offset, canvasW: Float, canvasH: Float)
 @Composable
 private fun ActionControls(
     activeStack: CombatStack?,
+    isAutoBattleActive: Boolean,
+    onToggleAutoBattle: () -> Unit,
     onWait: () -> Unit,
     onDefend: () -> Unit,
     onOpenAbilities: () -> Unit,
@@ -686,47 +762,63 @@ private fun ActionControls(
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         Button(
+            onClick = onToggleAutoBattle,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (isAutoBattleActive) Color(0xFF059669) else CastleSurfaceDark
+            ),
+            border = BorderStroke(1.dp, if (isAutoBattleActive) Color(0xFF34D399) else GoldSecondary),
+            modifier = Modifier.weight(1.15f).testTag("auto_battle_toggle")
+        ) {
+            Text(
+                if (isAutoBattleActive) "AUTO ON" else "AUTO",
+                fontSize = 10.sp,
+                color = if (isAutoBattleActive) Color.White else GoldSecondary,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+        Button(
             onClick = onWait,
             enabled = activeStack != null && !activeStack.hasWaited,
             colors = ButtonDefaults.buttonColors(containerColor = CastleSurfaceDark),
-            modifier = Modifier.weight(1f).testTag("action_wait_button")
+            modifier = Modifier.weight(0.9f).testTag("action_wait_button")
         ) {
-            Text("Wait", fontSize = 11.sp, color = GoldSecondary)
+            Text("Wait", fontSize = 10.sp, color = GoldSecondary)
         }
 
         Button(
             onClick = onDefend,
             enabled = activeStack != null,
             colors = ButtonDefaults.buttonColors(containerColor = CastleSurfaceDark),
-            modifier = Modifier.weight(1f).testTag("action_defend_button")
+            modifier = Modifier.weight(0.9f).testTag("action_defend_button")
         ) {
-            Text("Defend", fontSize = 11.sp, color = ManaBlue)
+            Text("Def", fontSize = 10.sp, color = ManaBlue)
         }
 
         if (activeStack != null && activeStack.definition.activeAbilities.isNotEmpty()) {
             Button(
                 onClick = onOpenAbilities,
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF5B21B6)),
-                modifier = Modifier.weight(1.1f).testTag("action_ability_button")
+                modifier = Modifier.weight(1.05f).testTag("action_ability_button")
             ) {
-                Text("Ability", fontSize = 11.sp, color = Color(0xFFDDD6FE), fontWeight = FontWeight.Bold)
+                Text("Ability", fontSize = 10.sp, color = Color(0xFFDDD6FE), fontWeight = FontWeight.Bold)
             }
         }
 
         Button(
             onClick = onCastSpell,
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4C1D95)),
-            modifier = Modifier.weight(1f).testTag("action_spell_button")
+            modifier = Modifier.weight(0.95f).testTag("action_spell_button")
         ) {
-            Text("Spell", fontSize = 11.sp, color = Color.White)
+            Text("Spell", fontSize = 10.sp, color = Color.White)
         }
 
         Button(
             onClick = onAutoTurn,
             colors = ButtonDefaults.buttonColors(containerColor = GoldPrimary),
-            modifier = Modifier.weight(1f).testTag("action_auto_button")
+            modifier = Modifier.weight(0.95f).testTag("action_auto_button")
         ) {
-            Text("AI Turn", fontSize = 11.sp, color = CastleNavyDark, fontWeight = FontWeight.Bold)
+            Text("Step", fontSize = 10.sp, color = CastleNavyDark, fontWeight = FontWeight.Bold)
         }
     }
 }
