@@ -1,0 +1,111 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "version": "1.0.0",
+  "textureAtlas": {
+    "texturePath": "sprites/creatures_atlas.png",
+    "width": 1024,
+    "height": 1024,
+    "sprites": [
+      {
+        "id": "pikeman_idle",
+        "creatureId": "pikeman",
+        "animation": "IDLE",
+        "frameRateFps": 8,
+        "isLooping": true,
+        "frames": [
+          { "x": 0, "y": 0, "w": 64, "h": 64, "pivotX": 32, "pivotY": 56, "durationMs": 125 },
+          { "x": 64, "y": 0, "w": 64, "h": 64, "pivotX": 32, "pivotY": 56, "durationMs": 125 },
+          { "x": 128, "y": 0, "w": 64, "h": 64, "pivotX": 32, "pivotY": 56, "durationMs": 125 },
+          { "x": 192, "y": 0, "w": 64, "h": 64, "pivotX": 32, "pivotY": 56, "durationMs": 125 }
+        ]
+      },
+      {
+        "id": "pikeman_move",
+        "creatureId": "pikeman",
+        "animation": "MOVE",
+        "frameRateFps": 10,
+        "isLooping": true,
+        "frames": [
+          { "x": 0, "y": 64, "w": 64, "h": 64, "pivotX": 32, "pivotY": 56, "durationMs": 100 },
+          { "x": 64, "y": 64, "w": 64, "h": 64, "pivotX": 32, "pivotY": 56, "durationMs": 100 },
+          { "x": 128, "y": 64, "w": 64, "h": 64, "pivotX": 32, "pivotY": 56, "durationMs": 100 },
+          { "x": 192, "y": 64, "w": 64, "h": 64, "pivotX": 32, "pivotY": 56, "durationMs": 100 }
+        ]
+      },
+      {
+        "id": "pikeman_attack",
+        "creatureId": "pikeman",
+        "animation": "ATTACK",
+        "frameRateFps": 12,
+        "isLooping": false,
+        "impactFrameIndex": 2,
+        "frames": [
+          { "x": 0, "y": 128, "w": 64, "h": 64, "pivotX": 32, "pivotY": 56, "durationMs": 83 },
+          { "x": 64, "y": 128, "w": 64, "h": 64, "pivotX": 32, "pivotY": 56, "durationMs": 83 },
+          { "x": 128, "y": 128, "w": 64, "h": 64, "pivotX": 32, "pivotY": 56, "durationMs": 83 },
+          { "x": 192, "y": 128, "w": 64, "h": 64, "pivotX": 32, "pivotY": 56, "durationMs": 83 }
+        ]
+      },
+      {
+        "id": "pikeman_die",
+        "creatureId": "pikeman",
+        "animation": "DIE",
+        "frameRateFps": 8,
+        "isLooping": false,
+        "frames": [
+          { "x": 0, "y": 192, "w": 64, "h": 64, "pivotX": 32, "pivotY": 56, "durationMs": 125 },
+          { "x": 64, "y": 192, "w": 64, "h": 64, "pivotX": 32, "pivotY": 56, "durationMs": 125 },
+          { "x": 128, "y": 192, "w": 64, "h": 64, "pivotX": 32, "pivotY": 56, "durationMs": 125 }
+        ]
+      },
+      {
+        "id": "archangel_idle",
+        "creatureId": "archangel",
+        "animation": "IDLE",
+        "frameRateFps": 6,
+        "isLooping": true,
+        "frames": [
+          { "x": 256, "y": 0, "w": 96, "h": 96, "pivotX": 48, "pivotY": 80, "durationMs": 166 },
+          { "x": 352, "y": 0, "w": 96, "h": 96, "pivotX": 48, "pivotY": 80, "durationMs": 166 },
+          { "x": 448, "y": 0, "w": 96, "h": 96, "pivotX": 48, "pivotY": 80, "durationMs": 166 }
+        ]
+      },
+      {
+        "id": "archangel_attack",
+        "creatureId": "archangel",
+        "animation": "ATTACK",
+        "frameRateFps": 12,
+        "isLooping": false,
+        "impactFrameIndex": 2,
+        "frames": [
+          { "x": 256, "y": 96, "w": 96, "h": 96, "pivotX": 48, "pivotY": 80, "durationMs": 83 },
+          { "x": 352, "y": 96, "w": 96, "h": 96, "pivotX": 48, "pivotY": 80, "durationMs": 83 },
+          { "x": 448, "y": 96, "w": 96, "h": 96, "pivotX": 48, "pivotY": 80, "durationMs": 83 },
+          { "x": 544, "y": 96, "w": 96, "h": 96, "pivotX": 48, "pivotY": 80, "durationMs": 83 }
+        ]
+      },
+      {
+        "id": "pit_fiend_idle",
+        "creatureId": "pit_fiend",
+        "animation": "IDLE",
+        "frameRateFps": 8,
+        "isLooping": true,
+        "frames": [
+          { "x": 0, "y": 256, "w": 64, "h": 64, "pivotX": 32, "pivotY": 56, "durationMs": 125 },
+          { "x": 64, "y": 256, "w": 64, "h": 64, "pivotX": 32, "pivotY": 56, "durationMs": 125 }
+        ]
+      },
+      {
+        "id": "efreeti_idle",
+        "creatureId": "efreeti",
+        "animation": "IDLE",
+        "frameRateFps": 8,
+        "isLooping": true,
+        "frames": [
+          { "x": 128, "y": 256, "w": 64, "h": 64, "pivotX": 32, "pivotY": 56, "durationMs": 125 },
+          { "x": 192, "y": 256, "w": 64, "h": 64, "pivotX": 32, "pivotY": 56, "durationMs": 125 }
+        ]
+      }
+    ]
+  }
+}

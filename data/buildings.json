@@ -1,0 +1,167 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "version": "1.0.0",
+  "buildings": [
+    {
+      "id": "town_hall",
+      "name": "Town Hall",
+      "faction": "CASTLE",
+      "cost": { "gold": 0 },
+      "prerequisites": [],
+      "dailyIncome": 500,
+      "category": "HALL"
+    },
+    {
+      "id": "city_hall",
+      "name": "City Hall",
+      "faction": "CASTLE",
+      "cost": { "gold": 2500 },
+      "prerequisites": ["town_hall", "tavern", "blacksmith", "mage_guild_1"],
+      "dailyIncome": 1000,
+      "category": "HALL"
+    },
+    {
+      "id": "capitol",
+      "name": "Capitol",
+      "faction": "CASTLE",
+      "cost": { "gold": 10000 },
+      "prerequisites": ["city_hall", "castle"],
+      "dailyIncome": 4000,
+      "category": "HALL"
+    },
+    {
+      "id": "fort",
+      "name": "Fort",
+      "faction": "CASTLE",
+      "cost": { "gold": 5000, "wood": 20, "ore": 20 },
+      "prerequisites": [],
+      "category": "FORTIFICATION"
+    },
+    {
+      "id": "citadel",
+      "name": "Citadel",
+      "faction": "CASTLE",
+      "cost": { "gold": 2500, "ore": 5 },
+      "prerequisites": ["fort"],
+      "category": "FORTIFICATION"
+    },
+    {
+      "id": "castle",
+      "name": "Castle",
+      "faction": "CASTLE",
+      "cost": { "gold": 5000, "wood": 10, "ore": 10 },
+      "prerequisites": ["citadel"],
+      "category": "FORTIFICATION"
+    },
+    {
+      "id": "tavern",
+      "name": "Tavern",
+      "faction": "CASTLE",
+      "cost": { "gold": 500, "wood": 5 },
+      "prerequisites": [],
+      "moraleBonus": 1,
+      "category": "UTILITY"
+    },
+    {
+      "id": "blacksmith",
+      "name": "Blacksmith",
+      "faction": "CASTLE",
+      "cost": { "gold": 1000, "wood": 5 },
+      "prerequisites": [],
+      "category": "UTILITY"
+    },
+    {
+      "id": "mage_guild_1",
+      "name": "Mage Guild Level 1",
+      "faction": "CASTLE",
+      "cost": { "gold": 2000, "wood": 5, "ore": 5 },
+      "prerequisites": [],
+      "category": "MAGE_GUILD"
+    },
+    {
+      "id": "guardhouse",
+      "name": "Guardhouse",
+      "faction": "CASTLE",
+      "cost": { "gold": 500, "wood": 10 },
+      "prerequisites": ["fort"],
+      "creatureId": "pikeman",
+      "dwellingTier": 1,
+      "growth": 14,
+      "category": "DWELLING"
+    },
+    {
+      "id": "archers_tower",
+      "name": "Archers Tower",
+      "faction": "CASTLE",
+      "cost": { "gold": 1000, "wood": 5 },
+      "prerequisites": ["guardhouse"],
+      "creatureId": "archer",
+      "dwellingTier": 2,
+      "growth": 9,
+      "category": "DWELLING"
+    },
+    {
+      "id": "griffin_tower",
+      "name": "Griffin Tower",
+      "faction": "CASTLE",
+      "cost": { "gold": 1000, "ore": 5 },
+      "prerequisites": ["guardhouse"],
+      "creatureId": "griffin",
+      "dwellingTier": 3,
+      "growth": 7,
+      "category": "DWELLING"
+    },
+    {
+      "id": "barracks",
+      "name": "Barracks",
+      "faction": "CASTLE",
+      "cost": { "gold": 2000, "wood": 5, "ore": 5 },
+      "prerequisites": ["guardhouse", "blacksmith"],
+      "creatureId": "swordsman",
+      "dwellingTier": 4,
+      "growth": 4,
+      "category": "DWELLING"
+    },
+    {
+      "id": "monastery",
+      "name": "Monastery",
+      "faction": "CASTLE",
+      "cost": { "gold": 3000, "wood": 5, "ore": 5 },
+      "prerequisites": ["archers_tower", "mage_guild_1"],
+      "creatureId": "monk",
+      "dwellingTier": 5,
+      "growth": 3,
+      "category": "DWELLING"
+    },
+    {
+      "id": "training_grounds",
+      "name": "Training Grounds",
+      "faction": "CASTLE",
+      "cost": { "gold": 5000, "wood": 20 },
+      "prerequisites": ["barracks", "griffin_tower", "stables"],
+      "creatureId": "cavalier",
+      "dwellingTier": 6,
+      "growth": 2,
+      "category": "DWELLING"
+    },
+    {
+      "id": "stables",
+      "name": "Stables",
+      "faction": "CASTLE",
+      "cost": { "gold": 2000, "wood": 10 },
+      "prerequisites": ["barracks"],
+      "category": "UTILITY"
+    },
+    {
+      "id": "portal_of_glory",
+      "name": "Portal of Glory",
+      "faction": "CASTLE",
+      "cost": { "gold": 20000, "wood": 10, "ore": 10, "gems": 10, "mercury": 10, "sulfur": 10, "crystal": 10 },
+      "prerequisites": ["monastery", "training_grounds"],
+      "creatureId": "angel",
+      "dwellingTier": 7,
+      "growth": 1,
+      "category": "DWELLING"
+    }
+  ]
+}

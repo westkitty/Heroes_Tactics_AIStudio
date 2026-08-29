@@ -1,0 +1,6 @@
+{
+  "name": "Heroes Tactics",
+  "description": "Deterministic simulation engine, hexagonal tactical combat, A* pathfinding, and asset pipeline for a Heroes of Might and Magic III clone.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

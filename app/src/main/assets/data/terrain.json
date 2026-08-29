@@ -1,0 +1,82 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "version": "1.0.0",
+  "terrains": [
+    {
+      "id": "GRASS",
+      "name": "Grass",
+      "baseMovementCost": 100,
+      "nativeFaction": "CASTLE",
+      "isPassable": true
+    },
+    {
+      "id": "DIRT",
+      "name": "Dirt",
+      "baseMovementCost": 100,
+      "nativeFaction": "NONE",
+      "isPassable": true
+    },
+    {
+      "id": "ROUGH",
+      "name": "Rough",
+      "baseMovementCost": 125,
+      "nativeFaction": "STRONGHOLD",
+      "isPassable": true
+    },
+    {
+      "id": "DESERT",
+      "name": "Desert",
+      "baseMovementCost": 150,
+      "nativeFaction": "NONE",
+      "isPassable": true
+    },
+    {
+      "id": "SNOW",
+      "name": "Snow",
+      "baseMovementCost": 150,
+      "nativeFaction": "TOWER",
+      "isPassable": true
+    },
+    {
+      "id": "SWAMP",
+      "name": "Swamp",
+      "baseMovementCost": 175,
+      "nativeFaction": "FORTRESS",
+      "isPassable": true
+    },
+    {
+      "id": "LAVA",
+      "name": "Lava",
+      "baseMovementCost": 100,
+      "nativeFaction": "INFERNO",
+      "isPassable": true
+    },
+    {
+      "id": "SUBTERRANEAN",
+      "name": "Subterranean",
+      "baseMovementCost": 125,
+      "nativeFaction": "DUNGEON",
+      "isPassable": true
+    },
+    {
+      "id": "WATER",
+      "name": "Water",
+      "baseMovementCost": 100,
+      "nativeFaction": "COVE",
+      "isPassable": false
+    },
+    {
+      "id": "ROCK",
+      "name": "Rock Obstacle",
+      "baseMovementCost": 999999,
+      "nativeFaction": "NONE",
+      "isPassable": false
+    }
+  ],
+  "roadModifiers": {
+    "NONE": 1.0,
+    "DIRT_ROAD": 0.75,
+    "GRAVEL_ROAD": 0.65,
+    "COBBLESTONE_ROAD": 0.50
+  }
+}

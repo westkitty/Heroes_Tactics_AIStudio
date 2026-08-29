@@ -1,0 +1,107 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "version": "1.0.0",
+  "spells": [
+    {
+      "id": "magic_arrow",
+      "name": "Magic Arrow",
+      "school": "ALL",
+      "level": 1,
+      "manaCost": 5,
+      "baseDamage": 10,
+      "powerMultiplier": 10,
+      "type": "DAMAGE_TARGET",
+      "description": "Deals direct magical damage to a single enemy stack."
+    },
+    {
+      "id": "lightning_bolt",
+      "name": "Lightning Bolt",
+      "school": "AIR",
+      "level": 2,
+      "manaCost": 8,
+      "baseDamage": 20,
+      "powerMultiplier": 25,
+      "type": "DAMAGE_TARGET",
+      "description": "Strikes target with lightning from above."
+    },
+    {
+      "id": "fireball",
+      "name": "Fireball",
+      "school": "FIRE",
+      "level": 3,
+      "manaCost": 15,
+      "baseDamage": 30,
+      "powerMultiplier": 15,
+      "radius": 1,
+      "type": "DAMAGE_AREA",
+      "description": "Engulfs target hex and adjacent hexes in flames."
+    },
+    {
+      "id": "haste",
+      "name": "Haste",
+      "school": "AIR",
+      "level": 1,
+      "manaCost": 6,
+      "statModifier": 3,
+      "targetStat": "SPEED",
+      "type": "BUFF_TARGET",
+      "description": "Increases unit speed and combat movement range."
+    },
+    {
+      "id": "slow",
+      "name": "Slow",
+      "school": "EARTH",
+      "level": 1,
+      "manaCost": 6,
+      "speedFactor": 0.5,
+      "targetStat": "SPEED",
+      "type": "DEBUFF_TARGET",
+      "description": "Reduces unit speed by 50% rounded down."
+    },
+    {
+      "id": "cure",
+      "name": "Cure",
+      "school": "WATER",
+      "level": 1,
+      "manaCost": 6,
+      "baseHeal": 10,
+      "powerMultiplier": 5,
+      "type": "HEAL_TARGET",
+      "description": "Removes negative spells and heals wounded creatures."
+    },
+    {
+      "id": "resurrection",
+      "name": "Resurrection",
+      "school": "EARTH",
+      "level": 4,
+      "manaCost": 20,
+      "baseHealth": 50,
+      "powerMultiplier": 50,
+      "type": "RESURRECT_TARGET",
+      "description": "Restores dead creatures to the target friendly stack."
+    },
+    {
+      "id": "meteor_shower",
+      "name": "Meteor Shower",
+      "school": "EARTH",
+      "level": 4,
+      "manaCost": 16,
+      "baseDamage": 25,
+      "powerMultiplier": 25,
+      "radius": 2,
+      "type": "DAMAGE_AREA",
+      "description": "Bombards a wide 2-hex radius area with falling meteors."
+    },
+    {
+      "id": "chain_lightning",
+      "name": "Chain Lightning",
+      "school": "AIR",
+      "level": 4,
+      "manaCost": 24,
+      "baseDamage": 40,
+      "powerMultiplier": 25,
+      "type": "DAMAGE_TARGET",
+      "description": "Strikes target with high-voltage lightning cascading across combatants."
+    }
+  ]
+}
